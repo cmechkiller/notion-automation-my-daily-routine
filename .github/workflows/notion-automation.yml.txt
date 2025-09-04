@@ -2,8 +2,9 @@ name: Daily and Monthly Notion Summary
 
 on:
   schedule:
-    - cron: "0 20 * * *"  # 4 AM Malaysia time (20:00 UTC)
-  workflow_dispatch:   # 👈 allows manual trigger
+    - cron: "0 20 * * *"   # every day at 4AM Malaysia (20:00 UTC)
+  workflow_dispatch:        # manual trigger
+>>>>>>> d0b139a737a0a7ed1d123fd158e87431fb503e49
 
 jobs:
   run-summary:
