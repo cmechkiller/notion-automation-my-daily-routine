@@ -1,0 +1,32 @@
+name: Daily and Monthly Notion Summary
+
+on:
+  workflow_dispatch:   # 👈 allows manual trigger
+  schedule:
+    - cron: "0 20 * * *"  # 4 AM Malaysia time (20:00 UTC)
+
+jobs:
+  run-summary:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests python-dotenv
+
+      - name: Run Notion scripts
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
+          MONTHLY_SUMMARY_DB_ID: ${{ secrets.MONTHLY_SUMMARY_DB_ID }}
+          DAILY_ROUTINE_DB_ID: ${{ secrets.DAILY_ROUTINE_DB_ID }}
+        run: |
+          python notion_monthly_summary.py
+          python notion_monthly_summary_update1.py
