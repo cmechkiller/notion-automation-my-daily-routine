@@ -31,6 +31,7 @@ def safe_patch(url, payload):
         return None
     return r.json()
 
+# --- Fetch supporting DBs ---
 def fetch_supporting_dbs(daily_routine_db_id):
     url = f"{API_BASE}/databases/{daily_routine_db_id}"
     res = safe_get(url)
@@ -45,6 +46,7 @@ def fetch_supporting_dbs(daily_routine_db_id):
     print("🔗 Supporting DBs found:", supporting_dbs)
     return supporting_dbs
 
+# --- Inspect DB properties ---
 def inspect_db(db_id, label=""):
     url = f"{API_BASE}/databases/{db_id}"
     res = safe_get(url)
@@ -56,23 +58,14 @@ def inspect_db(db_id, label=""):
         print(f"  - {n}: {t}")
     return res["properties"]
 
-# --- Safe add helper ---
-def safe_add_property(payload, existing_props, name, config):
-    if name in existing_props:
-        print(f"ℹ️ Property '{name}' already exists, skipping.")
-    else:
-        payload["properties"][name] = config
-        print(f"➕ Adding property '{name}'")
-
-# --- Update Monthly Summary with emoji-friendly rollups ---
+# --- Update Monthly Summary safely ---
 def update_monthly_summary(summary_db_id, supporting_dbs):
-    # Fetch existing properties in Monthly Summary
+    # Fetch existing properties so we don't duplicate
     url = f"{API_BASE}/databases/{summary_db_id}"
     res = safe_get(url)
     if not res:
-        print("❌ Could not fetch Monthly Summary DB")
         return
-    existing_props = res["properties"]
+    existing_props = res["properties"].keys()
 
     payload = {"properties": {}}
 
@@ -80,96 +73,88 @@ def update_monthly_summary(summary_db_id, supporting_dbs):
     if "Books" in supporting_dbs:
         props = inspect_db(supporting_dbs["Books"], "Books")
         if "Completed" in props:
-            safe_add_property(payload, existing_props, "📚 Books Completed %", {
-                "rollup": {
-                    "relation_property_name": "Books",
-                    "rollup_property_name": "Completed",
-                    "function": "percent_checked",
+            if "📚 Books Completed %" not in existing_props:
+                payload["properties"]["📚 Books Completed %"] = {
+                    "rollup": {
+                        "relation_property_name": "Books",
+                        "rollup_property_name": "Completed",
+                        "function": "percent_checked",
+                    }
                 }
-            })
-            safe_add_property(payload, existing_props, "📚 Books In Progress %", {
-                "rollup": {
-                    "relation_property_name": "Books",
-                    "rollup_property_name": "Completed",
-                    "function": "percent_unchecked",
+            if "📚 Books In Progress %" not in existing_props:
+                payload["properties"]["📚 Books In Progress %"] = {
+                    "rollup": {
+                        "relation_property_name": "Books",
+                        "rollup_property_name": "Completed",
+                        "function": "percent_unchecked",
+                    }
                 }
-            })
 
     # Podcasts
     if "Podcasts" in supporting_dbs:
         props = inspect_db(supporting_dbs["Podcasts"], "Podcasts")
         if "Listened" in props:
-            safe_add_property(payload, existing_props, "🎧 Podcasts Completed %", {
-                "rollup": {
-                    "relation_property_name": "Podcasts",
-                    "rollup_property_name": "Listened",
-                    "function": "percent_checked",
+            if "🎧 Podcasts Completed %" not in existing_props:
+                payload["properties"]["🎧 Podcasts Completed %"] = {
+                    "rollup": {
+                        "relation_property_name": "Podcasts",
+                        "rollup_property_name": "Listened",
+                        "function": "percent_checked",
+                    }
                 }
-            })
-            safe_add_property(payload, existing_props, "🎧 Podcasts In Progress %", {
-                "rollup": {
-                    "relation_property_name": "Podcasts",
-                    "rollup_property_name": "Listened",
-                    "function": "percent_unchecked",
+            if "🎧 Podcasts In Progress %" not in existing_props:
+                payload["properties"]["🎧 Podcasts In Progress %"] = {
+                    "rollup": {
+                        "relation_property_name": "Podcasts",
+                        "rollup_property_name": "Listened",
+                        "function": "percent_unchecked",
+                    }
                 }
-            })
 
     # Recipes
     if "Recipes" in supporting_dbs:
         props = inspect_db(supporting_dbs["Recipes"], "Recipes")
         if "Tried" in props:
-            safe_add_property(payload, existing_props, "🍳 Recipes Tried %", {
-                "rollup": {
-                    "relation_property_name": "Recipes",
-                    "rollup_property_name": "Tried",
-                    "function": "percent_checked",
+            if "🍳 Recipes Tried %" not in existing_props:
+                payload["properties"]["🍳 Recipes Tried %"] = {
+                    "rollup": {
+                        "relation_property_name": "Recipes",
+                        "rollup_property_name": "Tried",
+                        "function": "percent_checked",
+                    }
                 }
-            })
 
-    # Exercise
+        # Exercise
     if "Exercise" in supporting_dbs:
         props = inspect_db(supporting_dbs["Exercise"], "Exercise")
         if "Calories Burned" in props:
-            safe_add_property(payload, existing_props, "🏋️ Exercise Calories", {
-                "rollup": {
-                    "relation_property_name": "Exercise",
-                    "rollup_property_name": "Calories Burned",
-                    "function": "sum",
+            if "🏋️ Exercise Calories" not in existing_props:
+                payload["properties"]["🏋️ Exercise Calories"] = {
+                    "rollup": {
+                        "relation_property_name": "Exercise",
+                        "rollup_property_name": "Calories Burned",
+                        "function": "sum",
+                    }
                 }
-            })
 
     # Monthly Budget
     if "Monthly Budget" in supporting_dbs:
         props = inspect_db(supporting_dbs["Monthly Budget"], "Monthly Budget")
         if "Spent" in props:
-            safe_add_property(payload, existing_props, "💰 Budget Spent", {
-                "rollup": {
-                    "relation_property_name": "Monthly Budget",
-                    "rollup_property_name": "Spent",
-                    "function": "sum",
+            if "💰 Budget Spent" not in existing_props:
+                payload["properties"]["💰 Budget Spent"] = {
+                    "rollup": {
+                        "relation_property_name": "Monthly Budget",
+                        "rollup_property_name": "Spent",
+                        "function": "sum",
+                    }
                 }
-            })
 
     if not payload["properties"]:
-        print("⚠️ No new rollups to add.")
+        print("⚠️ No new rollups to add. Already up-to-date ✅")
         return
 
     res = safe_patch(url, payload)
     if res:
-        print(f"✅ Updated Monthly Summary DB {summary_db_id} with rollups")
+        print(f"✅ Updated Monthly Summary DB {summary_db_id} with new rollups (no duplicates)")
 
-# --- Main ---
-def main():
-    if not MONTHLY_SUMMARY_DB_ID or not DAILY_ROUTINE_DB_ID:
-        print("❌ Missing env vars: MONTHLY_SUMMARY_DB_ID or DAILY_ROUTINE_DB_ID")
-        return
-
-    supporting_dbs = fetch_supporting_dbs(DAILY_ROUTINE_DB_ID)
-    if not supporting_dbs:
-        print("❌ Could not fetch supporting DBs")
-        return
-
-    update_monthly_summary(MONTHLY_SUMMARY_DB_ID, supporting_dbs)
-
-if __name__ == "__main__":
-    main()
