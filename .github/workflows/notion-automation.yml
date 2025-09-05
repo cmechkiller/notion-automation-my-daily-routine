@@ -31,7 +31,4 @@ jobs:
           python notion_monthly_summary.py
           python notion_monthly_summary_update1.py
 
-print("🔑 Using Notion API Key:", NOTION_API_KEY[:6], "...")  # Only show first few chars
-print("📄 Using Page ID:", NOTION_PAGE_ID)
-print("📂 Daily Routine DB:", DAILY_ROUTINE_DB_ID)
-print("📊 Monthly Summary DB:", MONTHLY_SUMMARY_DB_ID)
+
