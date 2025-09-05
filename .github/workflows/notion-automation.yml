@@ -3,7 +3,7 @@ name: Daily and Monthly Notion Summary
 on:
   workflow_dispatch:   # 👈 allows manual trigger
   schedule:
-    - cron: "0 20 * * *"  # 4 AM Malaysia time (20:00 UTC)
+    - cron: "0 19 * * *"  # 3 AM Malaysia time (19:00 UTC)
 
 jobs:
   run-scripts:
