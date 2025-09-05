@@ -27,6 +27,6 @@ jobs:
           DAILY_ROUTINE_DB_ID: ${{ secrets.DAILY_ROUTINE_DB_ID }}
           MONTHLY_SUMMARY_DB_ID: ${{ secrets.MONTHLY_SUMMARY_DB_ID }}
         run: |
-          python notion_daily_summary.py
+          python notion_daily_routine_ver2.py
           python notion_monthly_summary.py
           python notion_monthly_summary_update1.py
