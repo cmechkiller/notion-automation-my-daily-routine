@@ -22,7 +22,7 @@ jobs:
 
       - name: Run Notion scripts
         env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
           DAILY_ROUTINE_DB_ID: ${{ secrets.DAILY_ROUTINE_DB_ID }}
           MONTHLY_SUMMARY_DB_ID: ${{ secrets.MONTHLY_SUMMARY_DB_ID }}
